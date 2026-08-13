@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roteiros — Dr. Eloísio Lopes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0D1F3C; --gold: #B8903A; --gold-dim: rgba(184,144,58,0.1);
+    --gold-border: rgba(184,144,58,0.35); --white: #FFFFFF;
+    --cream: #F7F5F1; --gray: #6B7280; --light: #E5E7EB; --text: #1C2B3A;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+
+  header{background:var(--navy);padding:26px 40px 22px;border-bottom:3px solid var(--gold);}
+  .header-tag{font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;font-weight:500;}
+  header h1{font-family:'Playfair Display',serif;font-size:clamp(18px,3.5vw,26px);color:var(--white);font-weight:700;line-height:1.2;margin-bottom:5px;}
+  header p{font-size:12.5px;color:rgba(255,255,255,0.45);}
+
+  main{max-width:880px;margin:0 auto;padding:32px 40px 140px;}
+
+  .section-header{display:flex;align-items:center;gap:10px;margin:36px 0 16px;padding-bottom:12px;border-bottom:2px solid var(--light);}
+  .section-icon{font-size:20px;}
+  .section-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--navy);}
+  .section-count{margin-left:auto;font-size:11px;color:var(--gray);background:var(--light);padding:3px 10px;border-radius:100px;}
+
+  .card{background:var(--white);border:1.5px solid var(--light);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;cursor:pointer;}
+  .card:hover{border-color:var(--gold-border);}
+  .card.selected{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,144,58,0.12);}
+
+  .card-top{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;}
+  .card-check{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--light);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;background:var(--white);}
+  .card.selected .card-check{background:var(--gold);border-color:var(--gold);}
+  .card.selected .card-check::after{content:'';display:block;width:6px;height:10px;border:2px solid white;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px);}
+
+  .card-info{flex:1;min-width:0;}
+  .card-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+  .badge{font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:100px;}
+  .badge-green{background:rgba(22,163,74,0.1);color:#16A34A;border:1px solid rgba(22,163,74,0.2);}
+  .badge-blue{background:rgba(27,79,216,0.1);color:#1B4FD8;border:1px solid rgba(27,79,216,0.2);}
+  .badge-rose{background:rgba(190,24,93,0.1);color:#BE185D;border:1px solid rgba(190,24,93,0.2);}
+  .badge-purple{background:rgba(124,58,237,0.1);color:#7C3AED;border:1px solid rgba(124,58,237,0.2);}
+  .card-num{font-size:10px;color:var(--gray);margin-left:auto;flex-shrink:0;}
+  .card-title{font-size:13.5px;font-weight:600;color:var(--navy);line-height:1.35;margin-bottom:4px;}
+  .card-gancho{font-size:12px;color:var(--gray);line-height:1.5;font-style:italic;}
+
+  .card-body{display:none;border-top:1px solid var(--light);padding:16px 18px 16px 54px;background:#FAFAF8;}
+  .card.expanded .card-body{display:block;}
+
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .field-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+  .field-label.gancho{color:#16A34A;}
+  .field-label.fala{color:#1B4FD8;}
+  .field-label.cta{color:var(--gold);}
+  .field-label.info{color:var(--gray);}
+  .field-content{font-size:13px;color:var(--text);line-height:1.65;}
+  .field-content.italic{font-style:italic;color:var(--gray);}
+  .field-content p{margin-bottom:4px;}
+  .info-row{display:flex;gap:20px;flex-wrap:wrap;}
+  .info-item{font-size:11.5px;color:var(--gray);}
+  .info-item strong{color:var(--navy);font-weight:600;}
+
+  .expand-toggle{font-size:11px;color:var(--gold);margin-top:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-weight:500;}
+
+  /* STICKY BAR */
+  .sticky-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--light);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 -4px 24px rgba(0,0,0,0.08);z-index:50;transform:translateY(100%);transition:transform 0.3s;}
+  .sticky-bar.visible{transform:translateY(0);}
+  .bar-count{font-size:13px;color:var(--gray);}
+  .bar-count strong{color:var(--navy);}
+  .btn-finalizar{background:var(--navy);color:var(--white);border:none;padding:12px 28px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px;}
+  .btn-finalizar:hover{background:var(--gold);color:var(--navy);}
+  .btn-finalizar:disabled{opacity:0.4;cursor:not-allowed;}
+  .btn-finalizar:disabled:hover{background:var(--navy);color:var(--white);}
+
+  /* SUCCESS */
+  .success{display:none;max-width:480px;margin:80px auto;text-align:center;padding:48px 40px;background:var(--white);border:1px solid var(--light);border-radius:16px;}
+  .success.show{display:block;}
+  .success-icon{width:56px;height:56px;border-radius:50%;background:var(--gold-dim);border:2px solid var(--gold-border);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:24px;}
+  .success h2{font-family:'Playfair Display',serif;font-size:20px;color:var(--navy);margin-bottom:10px;}
+  .success p{font-size:13px;color:var(--gray);line-height:1.7;}
+  .btn-reset{margin-top:20px;background:transparent;border:1.5px solid var(--light);color:var(--gray);padding:10px 22px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;}
+  .btn-reset:hover{border-color:var(--gold-border);color:var(--navy);}
+
+  @media(max-width:600px){header,main{padding-left:20px;padding-right:20px;}.sticky-bar{padding:12px 20px;}.card-body{padding-left:36px;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">Daily Data · Dr. Eloísio Lopes · Arapiraca</div>
+  <h1>Seleção de Roteiros<br>para Gravação</h1>
+  <p>Marque os roteiros que deseja gravar e finalize para enviar à equipe</p>
+</header>
+
+<main id="main-content">
+
+  <!-- JOELHO -->
+  <div class="section-header">
+    <span class="section-icon">🦵</span>
+    <div class="section-title">Cirurgia de Joelho</div>
+    <div class="section-count" id="count-joelho">7 roteiros</div>
+  </div>
+
+  <div id="cards-joelho"></div>
+
+  <!-- PEDIÁTRICA -->
+  <div class="section-header" style="margin-top:48px;">
+    <span class="section-icon">👶</span>
+    <div class="section-title">Ortopedia Pediátrica</div>
+    <div class="section-count" id="count-ped">6 roteiros</div>
+  </div>
+
+  <div id="cards-ped"></div>
+
+</main>
+
+<div class="success" id="success-box">
+  <div class="success-icon">✓</div>
+  <h2>Seleção enviada!</h2>
+  <p>O WhatsApp foi aberto com o resumo completo dos roteiros selecionados.<br><br>Caso não tenha aberto automaticamente, verifique se o pop-up foi bloqueado pelo navegador.</p>
+  <button class="btn-reset" onclick="location.reload()">Refazer seleção</button>
+</div>
+
+<div class="sticky-bar" id="sticky-bar">
+  <div class="bar-count"><strong id="total-count">0</strong> roteiros selecionados</div>
+  <button class="btn-finalizar" id="btn-fin" onclick="finalizar()" disabled>
+    Finalizar e enviar →
+  </button>
+</div>
+
+<script>
+const WHATSAPP = '5582993920974';
+
+const roteiros = [
+  {
+    id:'r01', secao:'joelho', num:'01',
+    pills:[{t:'Conversão',c:'green'},{t:'Joelho',c:'blue'}],
+    titulo:'"Dói quando ajoelha. Dói quando entra no carro. Dói quando agacha."',
+    gancho:'Você acha que dor ao ajoelhar ou agachar é normal? Não é.',
+    fala:['Essas situações parecem simples — mas quando causam dor, são sinais claros de que algo no seu joelho precisa de atenção.','Artrose, menisco, inflamação — cada causa tem diagnóstico e tratamento específico.','Sou o Dr. Eloísio Lopes, cirurgião de joelho em Arapiraca. Venha entender o que está acontecendo.'],
+    cta:'Agende pelo link na bio ou me manda mensagem agora.',
+    formato:'Reels 20–30s · Fala direta para câmera',
+    publico:'40–65 anos · ortopedia · Arapiraca e região',
+  },
+  {
+    id:'r02', secao:'joelho', num:'02',
+    pills:[{t:'Engajamento',c:'rose'},{t:'Joelho',c:'blue'}],
+    titulo:'O joelho que "falha" de repente: o que está acontecendo?',
+    gancho:'Você já sentiu o joelho ceder do nada? Como se fosse dobrar involuntariamente?',
+    fala:['Esse sintoma tem nome: instabilidade articular.','Pode indicar lesão de ligamento, menisco ou fraqueza muscular importante.','E sim — tem diagnóstico e tratamento. O erro é esperar.'],
+    cta:'Salva esse vídeo. E se você sente isso — me manda uma mensagem.',
+    formato:'Carrossel 5 slides ou Reels educativo 30–40s',
+    publico:'38–60 anos · alto salvamento',
+  },
+  {
+    id:'r03', secao:'joelho', num:'03',
+    pills:[{t:'Alcance',c:'blue'},{t:'Joelho',c:'blue'}],
+    titulo:'Aquele joelho que sempre incha no fim do dia — por que isso acontece?',
+    gancho:'Trabalha em pé o dia todo e o joelho incha toda noite?',
+    fala:['Isso não é frescura — é seu joelho pedindo atenção.','O inchaço indica que a articulação está sob mais pressão do que consegue absorver.','Com o tempo, isso acelera o desgaste da cartilagem e dos ligamentos.'],
+    cta:'Agende sua avaliação. Link na bio ou WhatsApp.',
+    formato:'Reels 20–25s · B-roll de trabalho + fala direta',
+    publico:'30–55 anos · comércio, professores, cozinheiros',
+  },
+  {
+    id:'r04', secao:'joelho', num:'04',
+    pills:[{t:'Engajamento',c:'rose'},{t:'Joelho',c:'blue'}],
+    titulo:'"Areia dentro do joelho" — o que esse sintoma revela?',
+    gancho:'Você já sentiu como se tivesse areia dentro do joelho ao movimentar a perna?',
+    fala:['Esse sintoma tem um nome: crepitação articular.','Geralmente indica desgaste da cartilagem — artrose no início ou condromalácia patelar.','Identificado cedo: tratamento simples. Identificado tarde: opções mais limitadas.'],
+    cta:'Salva esse post e compartilha com quem sente isso.',
+    formato:'Reels educativo 25–35s · modelo anatômico ou imagem',
+    publico:'40–65 anos · alto salvamento e compartilhamento',
+  },
+  {
+    id:'r05', secao:'joelho', num:'05',
+    pills:[{t:'Conversão',c:'green'},{t:'Joelho',c:'blue'}],
+    titulo:'Estalos com dor no joelho — quando preocupar?',
+    gancho:'Estalo no joelho: quando é normal e quando é sinal de problema?',
+    fala:['Estalo SEM dor: geralmente liberação de gás sinovial, sem alarme.','Estalo COM dor, inchaço ou travamento: pode indicar lesão de menisco ou fragmento de cartilagem.','A diferença está na dor. E a dor nunca deve ser ignorada.'],
+    cta:'Agende sua avaliação. Link na bio.',
+    formato:'Carrossel 4 slides ou vídeo 20s',
+    publico:'35–60 anos · dúvida universal, alto alcance',
+  },
+  {
+    id:'r06', secao:'joelho', num:'06',
+    pills:[{t:'Alcance',c:'blue'},{t:'Joelho',c:'blue'}],
+    titulo:'Para a mulher que cuida de tudo — e convive com dor no joelho há meses',
+    gancho:'Dói ao ajoelhar para limpar, ao agachar, ao descer escada?',
+    fala:['Esses movimentos parecem simples. Mas quando causam dor frequente, são sinais que não devem ser ignorados.','A maioria das mulheres que atendo com dor crônica no joelho tem um ponto em comum: começou numa tarefa simples e foi crescendo.'],
+    cta:'Agende sua consulta. Link na bio.',
+    formato:'Reels 25s · b-roll doméstico + fala empática',
+    publico:'Mulheres 35–60 anos · Arapiraca e região',
+  },
+  {
+    id:'r07', secao:'joelho', num:'07',
+    pills:[{t:'Alcance',c:'blue'},{t:'Joelho',c:'blue'}],
+    titulo:'A dor depois do jogo que "passa até segunda" — mas volta no próximo fim de semana',
+    gancho:'Pratica esporte amador e sente dor depois? Isso não é cansaço.',
+    fala:['Esse ciclo é sinal de que algo está sendo lesionado repetidamente sem tratamento.','Menisco, cartilagem e ligamentos não se regeneram sozinhos quando a lesão já está instalada.','Quanto mais tempo sem diagnóstico, mais complexo o tratamento.'],
+    cta:'Avalie antes que a lesão decida por você. Link na bio.',
+    formato:'Reels 20–25s · b-roll esporte amador',
+    publico:'25–50 anos · esporte e saúde',
+  },
+  {
+    id:'r08', secao:'ped', num:'08',
+    pills:[{t:'Alcance',c:'blue'},{t:'Pediátrica',c:'purple'}],
+    titulo:'Seu filho para de correr no meio da brincadeira sem motivo?',
+    gancho:'Quando uma criança prefere ficar sentada enquanto as outras correm — pode ser evitamento por dor.',
+    fala:['Crianças raramente descrevem dor com precisão. Elas simplesmente param de fazer o que dói.','E os pais percebem antes de qualquer exame.','O diagnóstico precoce muda completamente o resultado do tratamento.'],
+    cta:'Confie no que você observa. Agende uma avaliação. Link na bio.',
+    formato:'Reels 20–28s · b-roll infantil + fala acolhedora',
+    publico:'Pais de crianças 4–12 anos · 100km de Arapiraca',
+  },
+  {
+    id:'r09', secao:'ped', num:'09',
+    pills:[{t:'Engajamento',c:'rose'},{t:'Pediátrica',c:'purple'}],
+    titulo:'"Ele não gosta de educação física" — pode ser mais do que preguiça',
+    gancho:'"Ele não gosta de educação física." — Ouço isso com frequência no consultório.',
+    fala:['E muitas vezes descobrimos que a criança evitava a aula porque sentia dor — e não sabia descrever isso.','Pé chato, joelhos em X, alteração no quadril — condições simples que, sem diagnóstico, viram anos de limitação.'],
+    cta:'Você se identificou? Conta nos comentários. Link na bio para agendar.',
+    formato:'Post único ou Reels 20s · tom leve',
+    publico:'Pais de crianças 5–14 anos',
+  },
+  {
+    id:'r10', secao:'ped', num:'10',
+    pills:[{t:'Conversão',c:'green'},{t:'Pediátrica',c:'purple'}],
+    titulo:'Criança que tropeça demais — quando é normal e quando avaliar?',
+    gancho:'Seu filho cai com frequência — mesmo em superfície plana?',
+    fala:['Até os 3 anos: pode ser desenvolvimento normal.','A partir dos 4–5 anos, vale avaliar: cai em superfície lisa, marcha diferente ou calçado desgastado assimetricamente.','Uma avaliação ortopédica resolve antes que vire limitação.'],
+    cta:'Agende. Link na bio.',
+    formato:'Carrossel 4 slides educativo',
+    publico:'Pais de crianças 3–10 anos',
+  },
+  {
+    id:'r11', secao:'ped', num:'11',
+    pills:[{t:'Alcance',c:'blue'},{t:'Pediátrica',c:'purple'}],
+    titulo:'Pernas em X ou em O no seu filho: o que é normal para cada idade?',
+    gancho:'Pernas em X ou em O no seu filho — normal ou problema?',
+    fala:['Até ~2 anos: pernas em O são normais. Entre 3 e 7 anos: pernas em X são esperadas.','Desvio excessivo para a idade, assimetria entre as pernas ou dor ao caminhar merecem avaliação.'],
+    cta:'Dúvida? Uma consulta resolve. Link na bio.',
+    formato:'Carrossel 5 slides · por faixa etária',
+    publico:'Pais de crianças 1–10 anos · altíssimo salvamento',
+  },
+  {
+    id:'r12', secao:'ped', num:'12',
+    pills:[{t:'Alcance',c:'blue'},{t:'Pediátrica',c:'purple'}],
+    titulo:'Andar na ponta dos pés além dos 2 anos: quando avaliar?',
+    gancho:'Seu filho anda na ponta dos pés?',
+    fala:['Até os 2 anos, isso é completamente normal.','Se persiste após os 2–3 anos de forma constante — pode indicar encurtamento do tendão de Aquiles ou alteração neuromotora.','Ambos têm tratamento eficaz quando identificados cedo.'],
+    cta:'Uma avaliação simples resolve essa dúvida. Link na bio.',
+    formato:'Reels 20–25s · b-roll criança + fala calma',
+    publico:'Pais de crianças 1–5 anos',
+  },
+  {
+    id:'r13', secao:'ped', num:'13',
+    pills:[{t:'Conversão',c:'green'},{t:'Pediátrica',c:'purple'}],
+    titulo:'Postura torta nas fotos — pode ser escoliose. E o momento certo é agora.',
+    gancho:'Nas fotos, o ombro do seu filho sempre aparece mais alto de um lado?',
+    fala:['Pode ser escoliose. E o momento certo de agir é antes do pico de crescimento.','Diagnosticada antes: tratamento com acompanhamento e fisioterapia.','Diagnosticada tarde: opções mais limitadas. A janela importa.'],
+    cta:'Se seu filho tem entre 8 e 14 anos — não espere. Link na bio.',
+    formato:'Reels 25–30s · fala com urgência',
+    publico:'Pais de adolescentes 8–15 anos · alta conversão',
+  },
+];
+
+const selected = new Set();
+
+function badgeClass(c) {
+  return {green:'badge-green',blue:'badge-blue',rose:'badge-rose',purple:'badge-purple'}[c]||'badge-blue';
+}
+
+function makeCard(r) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.dataset.id = r.id;
+
+  const pills = r.pills.map(p=>`<span class="badge ${badgeClass(p.c)}">${p.t}</span>`).join('');
+
+  div.innerHTML = `
+    <div class="card-top" onclick="toggleCard(event,'${r.id}')">
+      <div class="card-check" id="chk-${r.id}"></div>
+      <div class="card-info">
+        <div class="card-meta">
+          ${pills}
+          <span class="card-num">Roteiro ${r.num}</span>
+        </div>
+        <div class="card-title">${r.titulo}</div>
+        <div class="card-gancho">${r.gancho}</div>
+        <div class="expand-toggle" id="tog-${r.id}">▸ Ver detalhes</div>
+      </div>
+    </div>
+    <div class="card-body" id="body-${r.id}">
+      <div class="field">
+        <div class="field-label gancho">Gancho</div>
+        <div class="field-content">${r.gancho}</div>
+      </div>
+      <div class="field">
+        <div class="field-label fala">Fala</div>
+        <div class="field-content italic">${r.fala.map(l=>`<p>${l}</p>`).join('')}</div>
+      </div>
+      <div class="field">
+        <div class="field-label cta">CTA</div>
+        <div class="field-content"><strong>${r.cta}</strong></div>
+      </div>
+      <div class="field">
+        <div class="field-label info">Info</div>
+        <div class="info-row">
+          <div class="info-item"><strong>Formato:</strong> ${r.formato}</div>
+          <div class="info-item"><strong>Público:</strong> ${r.publico}</div>
+        </div>
+      </div>
+    </div>`;
+
+  return div;
+}
+
+function toggleCard(e, id) {
+  const card = document.querySelector(`[data-id="${id}"]`);
+  const body = document.getElementById(`body-${id}`);
+  const tog = document.getElementById(`tog-${id}`);
+  const chk = document.getElementById(`chk-${id}`);
+
+  // If clicking the check area (left ~44px), toggle selection
+  const rect = card.querySelector('.card-top').getBoundingClientRect();
+  const relX = e.clientX - rect.left;
+
+  if (relX < 44) {
+    // Toggle selection
+    if (selected.has(id)) {
+      selected.delete(id);
+      card.classList.remove('selected');
+    } else {
+      selected.add(id);
+      card.classList.add('selected');
+    }
+    updateBar();
+    return;
+  }
+
+  // Toggle expand
+  const isExpanded = card.classList.contains('expanded');
+  card.classList.toggle('expanded', !isExpanded);
+  tog.textContent = isExpanded ? '▸ Ver detalhes' : '▴ Fechar';
+}
+
+function updateBar() {
+  const n = selected.size;
+  document.getElementById('total-count').textContent = n;
+  document.getElementById('btn-fin').disabled = n === 0;
+  const bar = document.getElementById('sticky-bar');
+  bar.classList.toggle('visible', n > 0);
+}
+
+function finalizar() {
+  const selecionados = roteiros.filter(r => selected.has(r.id));
+  const d = new Date();
+  const fmt = d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  let msg = `*ROTEIROS SELECIONADOS — Dr. Eloísio Lopes*\n`;
+  msg += `Finalizado em: ${fmt}\n\n`;
+
+  const joelho = selecionados.filter(r => r.secao === 'joelho');
+  const ped = selecionados.filter(r => r.secao === 'ped');
+
+  if (joelho.length) {
+    msg += `*🦵 Cirurgia de Joelho*\n`;
+    joelho.forEach(r => { msg += `• Roteiro ${r.num}: ${r.titulo}\n`; });
+    msg += '\n';
+  }
+  if (ped.length) {
+    msg += `*👶 Ortopedia Pediátrica*\n`;
+    ped.forEach(r => { msg += `• Roteiro ${r.num}: ${r.titulo}\n`; });
+    msg += '\n';
+  }
+
+  msg += `_Total: ${selecionados.length} roteiro(s) selecionado(s)_`;
+
+  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+  document.getElementById('sticky-bar').style.display = 'none';
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('success-box').classList.add('show');
+}
+
+// Render
+(function init() {
+  const joelhoContainer = document.getElementById('cards-joelho');
+  const pedContainer = document.getElementById('cards-ped');
+  roteiros.forEach(r => {
+    const card = makeCard(r);
+    (r.secao === 'joelho' ? joelhoContainer : pedContainer).appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>
